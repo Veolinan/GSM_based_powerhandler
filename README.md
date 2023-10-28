@@ -42,4 +42,4 @@ Please ensure that the connections are made correctly according to the above des
 A special thanks to all the contributors who have played a vital role in enhancing this project with their technical expertise and creative solutions. Your contributions have been instrumental in shaping the success of this Arduino Uno, DS1302 RTC, and SD Card Module project. Together, we're building a more connected and innovative future through open-source collaboration.
 
 👁️ **Profile Views**
-![Hits](https://hitcounter.pythonanywhere.com/count/tag.svg?url=Paste_Your_GitHub_Repository_Link_Here)
+![Hits](https://img.shields.io/github/traffic/views/Veolinan/GSM_based_powerhandler)
