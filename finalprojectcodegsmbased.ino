@@ -1,7 +1,7 @@
 #include <SoftwareSerial.h>
 #include <SD.h>
 #include <DS1302.h>
-#include <TimeLib.h>
+#include <TimeLib.h>// Install this library
 
 SoftwareSerial sim(10, 11); // SoftwareSerial for the SIM module
 const int analogPin = A0;
