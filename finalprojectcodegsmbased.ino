@@ -1,6 +1,6 @@
-#include <SoftwareSerial.h>//updated latest
+#include <SoftwareSerial.h>
 #include <SD.h>
-#include <DS1302.h>
+#include <RtcDS1302.h> // Updated library
 
 SoftwareSerial sim(10, 11); // SoftwareSerial for the SIM module
 const int analogPin = A0;
@@ -16,7 +16,7 @@ const long callDuration = 20000;
 const long callRedirectTime = 15000;
 int currentNumber = 1;
 
-DS1302 rtc(2, 3); // DS1302 RTC module connected to SCLK (pin 2), IO (pin 3)
+RtcDS1302<TM1637SevenSegmentsClock<D2, D3>> rtc; // Updated RTC object
 
 File logFile; // SD card log file
 
@@ -30,9 +30,7 @@ void setup() {
   delay(1000);
 
   // Initialize the DS1302 RTC
-  rtc.begin();
-  rtc.halt(false);
-  rtc.writeProtect(false);
+  rtc.Begin();
 
   // Generate a unique log file name based on the current date and time
   String logFileName = getFormattedDateTimeForFileName() + ".log";
@@ -135,20 +133,20 @@ void logMessage(String message) {
 }
 
 String getFormattedDateTime() {
-  DS1302::time_t currentTime = rtc.time();
-  return String(currentTime.year) + "-" + formatTimeUnit(currentTime.mon) +
-         "-" + formatTimeUnit(currentTime.mday) + " " + formatTimeUnit(currentTime.hour) + ":" +
-         formatTimeUnit(currentTime.min) + ":" + formatTimeUnit(currentTime.sec);
+  RtcDateTime currentTime = rtc.GetDateTime();
+  return String(currentTime.Year()) + "-" + formatTimeUnit(currentTime.Month()) +
+         "-" + formatTimeUnit(currentTime.Day()) + " " + formatTimeUnit(currentTime.Hour()) + ":" +
+         formatTimeUnit(currentTime.Minute()) + ":" + formatTimeUnit(currentTime.Second());
 }
 
 String getFormattedDateTimeForFileName() {
-  DS1302::time_t currentTime = rtc.time();
-  return String(currentTime.year) + formatTimeUnit(currentTime.mon) +
-         formatTimeUnit(currentTime.mday) + formatTimeUnit(currentTime.hour) +
-         formatTimeUnit(currentTime.min) + formatTimeUnit(currentTime.sec);
+  RtcDateTime currentTime = rtc.GetDateTime();
+  return String(currentTime.Year()) + formatTimeUnit(currentTime.Month()) +
+         formatTimeUnit(currentTime.Day()) + formatTimeUnit(currentTime.Hour()) +
+         formatTimeUnit(currentTime.Minute()) + formatTimeUnit(currentTime.Second());
 }
 
-String formatTimeUnit(byte value) {
+String formatTimeUnit(int value) {
   if (value < 10) {
     return "0" + String(value);
   } else {
