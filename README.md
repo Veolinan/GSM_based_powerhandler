@@ -8,7 +8,7 @@ This guide explains the connections required to set up an Arduino Uno with a DS1
 1. Arduino Uno
 2. DS1302 RTC Module
 3. SD Card Module
-4. Buzzer (if applicable, not mentioned in code)
+4. Buzzer (if applicable, not mentioned in the code)
 
 ## Connections
 
@@ -39,5 +39,7 @@ Please ensure that the connections are made correctly according to the above des
 
 ![GitHub Contributors Image](https://contrib.rocks/image?repo=Veolinan/GSM_based_powerhandler)
 
-
 A special thanks to all the contributors who have played a vital role in enhancing this project with their technical expertise and creative solutions. Your contributions have been instrumental in shaping the success of this Arduino Uno, DS1302 RTC, and SD Card Module project. Together, we're building a more connected and innovative future through open-source collaboration.
+
+👁️ **Profile Views**
+![Hits](https://hitcounter.pythonanywhere.com/count/tag.svg?url=Paste_Your_GitHub_Repository_Link_Here)
