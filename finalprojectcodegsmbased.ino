@@ -1,6 +1,7 @@
 #include <SoftwareSerial.h>
 #include <SD.h>
-#include <RtcDS1302.h> // Updated library
+#include <DS1302.h>
+#include <TimeLib.h>
 
 SoftwareSerial sim(10, 11); // SoftwareSerial for the SIM module
 const int analogPin = A0;
@@ -16,7 +17,7 @@ const long callDuration = 20000;
 const long callRedirectTime = 15000;
 int currentNumber = 1;
 
-RtcDS1302<TM1637SevenSegmentsClock<D2, D3>> rtc; // Updated RTC object
+DS1302 rtc(6, 5, 4); // DS1302 RTC object with CE, IO, and SCLK pins
 
 File logFile; // SD card log file
 
@@ -29,8 +30,8 @@ void setup() {
   sim.begin(9600);
   delay(1000);
 
-  // Initialize the DS1302 RTC
-  rtc.Begin();
+  // Enable write protection on the DS1302
+  rtc.writeProtect(true);
 
   // Generate a unique log file name based on the current date and time
   String logFileName = getFormattedDateTimeForFileName() + ".log";
@@ -133,17 +134,17 @@ void logMessage(String message) {
 }
 
 String getFormattedDateTime() {
-  RtcDateTime currentTime = rtc.GetDateTime();
-  return String(currentTime.Year()) + "-" + formatTimeUnit(currentTime.Month()) +
-         "-" + formatTimeUnit(currentTime.Day()) + " " + formatTimeUnit(currentTime.Hour()) + ":" +
-         formatTimeUnit(currentTime.Minute()) + ":" + formatTimeUnit(currentTime.Second());
+  time_t currentTime = now();
+  return String(year(currentTime)) + "-" + formatTimeUnit(month(currentTime)) +
+         "-" + formatTimeUnit(day(currentTime)) + " " + formatTimeUnit(hour(currentTime)) + ":" +
+         formatTimeUnit(minute(currentTime)) + ":" + formatTimeUnit(second(currentTime));
 }
 
 String getFormattedDateTimeForFileName() {
-  RtcDateTime currentTime = rtc.GetDateTime();
-  return String(currentTime.Year()) + formatTimeUnit(currentTime.Month()) +
-         formatTimeUnit(currentTime.Day()) + formatTimeUnit(currentTime.Hour()) +
-         formatTimeUnit(currentTime.Minute()) + formatTimeUnit(currentTime.Second());
+  time_t currentTime = now();
+  return String(year(currentTime)) + formatTimeUnit(month(currentTime)) +
+         formatTimeUnit(day(currentTime)) + formatTimeUnit(hour(currentTime)) +
+         formatTimeUnit(minute(currentTime)) + formatTimeUnit(second(currentTime));
 }
 
 String formatTimeUnit(int value) {
