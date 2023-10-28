@@ -1,8 +1,8 @@
-#include <SoftwareSerial.h>
+#include <SoftwareSerial.h>//updated latest
 #include <SD.h>
-#include <DS1302.h>  // Include the DS1302 RTC library
+#include <DS1302.h>
 
-SoftwareSerial sim(10, 11);
+SoftwareSerial sim(10, 11); // SoftwareSerial for the SIM module
 const int analogPin = A0;
 const int ledPin = 12;
 const int threshold = 100;
@@ -16,8 +16,9 @@ const long callDuration = 20000;
 const long callRedirectTime = 15000;
 int currentNumber = 1;
 
-File logFile;  // Declare an SD card file
-DS1302 rtc(2, 3);  // Define the DS1302 RTC object (SCLK, IO)
+DS1302 rtc(2, 3); // DS1302 RTC module connected to SCLK (pin 2), IO (pin 3)
+
+File logFile; // SD card log file
 
 void setup() {
   pinMode(analogPin, INPUT);
@@ -33,10 +34,18 @@ void setup() {
   rtc.halt(false);
   rtc.writeProtect(false);
 
-  // Initialize the SD card
-  if (SD.begin()) {
+  // Generate a unique log file name based on the current date and time
+  String logFileName = getFormattedDateTimeForFileName() + ".log";
+
+  // Initialize the SD card module
+  if (SD.begin(10)) { // Pin 10 is the chip select for the SD card module
     Serial.println("SD card initialized.");
-    logFile = SD.open("log.txt", FILE_WRITE);  // Open the log file
+    logFile = SD.open(logFileName, FILE_WRITE); // Open the log file for writing
+    if (logFile) {
+      Serial.println("Log file opened: " + logFileName);
+    } else {
+      Serial.println("Error opening log file.");
+    }
   } else {
     Serial.println("Error initializing SD card.");
   }
@@ -121,15 +130,22 @@ void logMessage(String message) {
   if (logFile) {
     String timestamp = getFormattedDateTime();
     logFile.print(timestamp + " - " + message + "\n");
-    logFile.flush();
+    logFile.flush(); // Flush the data to the SD card
   }
 }
 
 String getFormattedDateTime() {
   DS1302::time_t currentTime = rtc.time();
-  return String(currentTime.year) + "-" + formatTimeUnit(currentTime.mon) + "-" +
-         formatTimeUnit(currentTime.mday) + " " + formatTimeUnit(currentTime.hour) + ":" +
+  return String(currentTime.year) + "-" + formatTimeUnit(currentTime.mon) +
+         "-" + formatTimeUnit(currentTime.mday) + " " + formatTimeUnit(currentTime.hour) + ":" +
          formatTimeUnit(currentTime.min) + ":" + formatTimeUnit(currentTime.sec);
+}
+
+String getFormattedDateTimeForFileName() {
+  DS1302::time_t currentTime = rtc.time();
+  return String(currentTime.year) + formatTimeUnit(currentTime.mon) +
+         formatTimeUnit(currentTime.mday) + formatTimeUnit(currentTime.hour) +
+         formatTimeUnit(currentTime.min) + formatTimeUnit(currentTime.sec);
 }
 
 String formatTimeUnit(byte value) {
