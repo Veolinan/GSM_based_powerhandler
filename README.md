@@ -37,9 +37,15 @@ Please ensure that the connections are made correctly according to the above des
 
 👥 **Contributors**
 
+## 👁️ Profile Views
+![Profile View Counter](https://komarev.com/ghpvc/?username=Veolinan)
+
+
 ![GitHub Contributors Image](https://contrib.rocks/image?repo=Veolinan/GSM_based_powerhandler)
 
 A special thanks to all the contributors who have played a vital role in enhancing this project with their technical expertise and creative solutions. Your contributions have been instrumental in shaping the success of this Arduino Uno, DS1302 RTC, and SD Card Module project. Together, we're building a more connected and innovative future through open-source collaboration.
+
+
 
 
 
