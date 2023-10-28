@@ -1,5 +1,6 @@
 #include <SoftwareSerial.h>
-#include <SD.h>  // Include the SD card library
+#include <SD.h>
+#include <DS1302.h>  // Include the DS1302 RTC library
 
 SoftwareSerial sim(10, 11);
 const int analogPin = A0;
@@ -16,6 +17,7 @@ const long callRedirectTime = 15000;
 int currentNumber = 1;
 
 File logFile;  // Declare an SD card file
+DS1302 rtc(2, 3);  // Define the DS1302 RTC object (SCLK, IO)
 
 void setup() {
   pinMode(analogPin, INPUT);
@@ -25,6 +27,11 @@ void setup() {
   Serial.begin(9600);
   sim.begin(9600);
   delay(1000);
+
+  // Initialize the DS1302 RTC
+  rtc.begin();
+  rtc.halt(false);
+  rtc.writeProtect(false);
 
   // Initialize the SD card
   if (SD.begin()) {
@@ -44,24 +51,24 @@ void loop() {
   if (sensorValue < threshold && !callInProgress) {
     callNumber();
     ledOn = true;
-    logMessage("Call initiated");  // Log the call initiation
+    logMessage("Call initiated");
   } else if (sensorValue >= threshold) {
     if (callInProgress) {
       hangUpCall();
     }
     ledOn = false;
-    logMessage("Call terminated");  // Log the call termination
+    logMessage("Call terminated");
   }
 
   if (callInProgress) {
     unsigned long currentMillis = millis();
     if (currentMillis - callStartTime >= callDuration) {
       hangUpCall();
-      logMessage("Call duration elapsed");  // Log the call duration
+      logMessage("Call duration elapsed");
       cycleNumbers();
     } else if (currentMillis - callStartTime >= callRedirectTime) {
       redirectCall();
-      logMessage("Call redirected");  // Log the call redirection
+      logMessage("Call redirected");
     }
   }
 
@@ -112,19 +119,23 @@ void cycleNumbers() {
 
 void logMessage(String message) {
   if (logFile) {
-    String timestamp = getTimeStamp();
+    String timestamp = getFormattedDateTime();
     logFile.print(timestamp + " - " + message + "\n");
-    logFile.flush();  // Flush the data to the SD card
+    logFile.flush();
   }
 }
 
-String getTimeStamp() {
-  char timestamp[20];
-  unsigned long currentTime = millis();
-  unsigned long seconds = currentTime / 1000;
-  unsigned long minutes = seconds / 60;
-  unsigned long hours = minutes / 60;
+String getFormattedDateTime() {
+  DS1302::time_t currentTime = rtc.time();
+  return String(currentTime.year) + "-" + formatTimeUnit(currentTime.mon) + "-" +
+         formatTimeUnit(currentTime.mday) + " " + formatTimeUnit(currentTime.hour) + ":" +
+         formatTimeUnit(currentTime.min) + ":" + formatTimeUnit(currentTime.sec);
+}
 
-  sprintf(timestamp, "%02lu:%02lu:%02lu", hours % 24, minutes % 60, seconds % 60);
-  return String(timestamp);
+String formatTimeUnit(byte value) {
+  if (value < 10) {
+    return "0" + String(value);
+  } else {
+    return String(value);
+  }
 }
