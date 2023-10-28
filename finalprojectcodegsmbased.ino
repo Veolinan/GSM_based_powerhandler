@@ -8,7 +8,7 @@ const int analogPin = A0;
 const int ledPin = 12;
 const int threshold = 100;
 const String number1 = "+254704358072";
-const String number2 = "+254729938202";
+const String number2 = "+254729938203";
 
 bool ledOn = false;
 bool callInProgress = false;
