@@ -31,5 +31,11 @@ This guide explains the connections required to set up an Arduino Uno with a DS1
 
 Please ensure that the connections are made correctly according to the above descriptions. The code provided assumes these pin connections. If you decide to use different pins, make sure to update the code accordingly.
 
-**Note:** The buzzer connection, is not specified in the code and should be connected separately 
+**Note:** The buzzer connection is not specified in the code and should be connected separately.
 
+---
+
+👥 **Contributors**
+
+![GitHub Contributors Image](https://contrib.rocks/image?repo=Veolinan/GSM_based_powerhandler)
+A special thanks to all the contributors who have played a vital role in enhancing this project with their technical expertise and creative solutions. Your contributions have been instrumental in shaping the success of this Arduino Uno, DS1302 RTC, and SD Card Module project. Together, we're building a more connected and innovative future through open-source collaboration.
