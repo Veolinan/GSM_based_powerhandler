@@ -1,57 +1,67 @@
-
 #include <SoftwareSerial.h>
+#include <SD.h>  // Include the SD card library
 
 SoftwareSerial sim(10, 11);
 const int analogPin = A0;
 const int ledPin = 12;
-const int threshold = 100; // Set the threshold value as per your requirement
-const String number1 = "+254704358072";     // Your first number
-const String number2 = "+254729938202"; // Your second number
+const int threshold = 100;
+const String number1 = "+254704358072";
+const String number2 = "+254729938202";
 
-bool ledOn = false; // Track the LED state
-bool callInProgress = false; // Track if a call is in progress
-unsigned long callStartTime = 0; // Track the start time of the call
-const long callDuration = 20000; // Call duration in milliseconds (20 seconds)
-const long callRedirectTime = 15000; // Time before redirecting the call in milliseconds (15 seconds)
-int currentNumber = 1; // 1 for the first number, 2 for the second number
+bool ledOn = false;
+bool callInProgress = false;
+unsigned long callStartTime = 0;
+const long callDuration = 20000;
+const long callRedirectTime = 15000;
+int currentNumber = 1;
+
+File logFile;  // Declare an SD card file
 
 void setup() {
   pinMode(analogPin, INPUT);
   pinMode(ledPin, OUTPUT);
-  digitalWrite(ledPin, LOW); // Ensure the LED is initially off
-  delay(7000); // Delay for 7 seconds to ensure the modules get the signal
+  digitalWrite(ledPin, LOW);
+  delay(7000);
   Serial.begin(9600);
   sim.begin(9600);
   delay(1000);
+
+  // Initialize the SD card
+  if (SD.begin()) {
+    Serial.println("SD card initialized.");
+    logFile = SD.open("log.txt", FILE_WRITE);  // Open the log file
+  } else {
+    Serial.println("Error initializing SD card.");
+  }
+
   Serial.println("System Started...");
   Serial.println("Type 's' to send an SMS, 'r' to receive an SMS, and 'c' to make a Call");
 }
 
 void loop() {
   int sensorValue = analogRead(analogPin);
-  
+
   if (sensorValue < threshold && !callInProgress) {
-    // A0 is low, initiate the call and start blinking the LED
     callNumber();
-    ledOn = true; // Turn on the LED
+    ledOn = true;
+    logMessage("Call initiated");  // Log the call initiation
   } else if (sensorValue >= threshold) {
-    // A0 is high, terminate the call and stop blinking the LED
     if (callInProgress) {
       hangUpCall();
     }
-    ledOn = false; // Turn off the LED
+    ledOn = false;
+    logMessage("Call terminated");  // Log the call termination
   }
 
   if (callInProgress) {
-    // Check if the call duration has elapsed
     unsigned long currentMillis = millis();
     if (currentMillis - callStartTime >= callDuration) {
-      // Call duration has elapsed, hang up the call
       hangUpCall();
-      cycleNumbers(); // Cycle to the next number
+      logMessage("Call duration elapsed");  // Log the call duration
+      cycleNumbers();
     } else if (currentMillis - callStartTime >= callRedirectTime) {
-      // Redirect the call to the other number after callRedirectTime
       redirectCall();
+      logMessage("Call redirected");  // Log the call redirection
     }
   }
 
@@ -59,45 +69,62 @@ void loop() {
     Serial.write(sim.read());
   }
 
-  // Blink the LED if it's on
   if (ledOn) {
-    digitalWrite(ledPin, !digitalRead(ledPin)); // Toggle the LED state
-    delay(500); // Blink interval of 0.5 seconds
+    digitalWrite(ledPin, !digitalRead(ledPin));
+    delay(500);
   } else {
-    digitalWrite(ledPin, LOW); // Ensure the LED is off when not blinking
+    digitalWrite(ledPin, LOW);
   }
 }
 
 void callNumber() {
   String targetNumber = (currentNumber == 1) ? number1 : number2;
-  // Make the call to the current target number
   sim.print("ATD");
   sim.print(targetNumber);
   sim.print(";\r\n");
-  delay(1000); // Wait for 10 seconds (adjust as needed)
+  delay(1000);
 
-  // Mark the call as in progress
   callInProgress = true;
   callStartTime = millis();
+  logMessage("Calling " + targetNumber);
 }
 
 void hangUpCall() {
-  // Hang up the call
   sim.println("ATH\r");
   delay(20000);
-  callInProgress = false; // Mark the call as no longer in progress
+  callInProgress = false;
+  logMessage("Call hung up");
 }
 
 void redirectCall() {
   String targetNumber = (currentNumber == 1) ? number1 : number2;
-  // Redirect the call to the other target number
   sim.print("ATD");
   sim.print(targetNumber);
   sim.print(";\r\n");
-  delay(1000); // Wait for 10 seconds (adjust as needed)
+  delay(1000);
+
+  logMessage("Call redirected to " + targetNumber);
 }
 
 void cycleNumbers() {
-  // Cycle to the next number (1 to 2 or 2 to 1)
   currentNumber = (currentNumber == 1) ? 2 : 1;
+}
+
+void logMessage(String message) {
+  if (logFile) {
+    String timestamp = getTimeStamp();
+    logFile.print(timestamp + " - " + message + "\n");
+    logFile.flush();  // Flush the data to the SD card
+  }
+}
+
+String getTimeStamp() {
+  char timestamp[20];
+  unsigned long currentTime = millis();
+  unsigned long seconds = currentTime / 1000;
+  unsigned long minutes = seconds / 60;
+  unsigned long hours = minutes / 60;
+
+  sprintf(timestamp, "%02lu:%02lu:%02lu", hours % 24, minutes % 60, seconds % 60);
+  return String(timestamp);
 }
