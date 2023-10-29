@@ -52,17 +52,6 @@ This document provides the connection details for the DS1302 RTC module and the 
 
 ---
 
-👥 **Contributors**
-
-
-
-
-![GitHub Contributors Image](https://contrib.rocks/image?repo=Veolinan/GSM_based_powerhandler)
-
-
-
-
-A special thanks to all the contributors who have played a vital role in enhancing this project with their technical expertise and creative solutions. Your contributions have been instrumental in shaping the success of this Arduino Uno, DS1302 RTC, and SD Card Module project. Together, we're building a more connected and innovative future through open-source collaboration.
 
 ## 👁️ Profile Views
 ![Profile View Counter](https://komarev.com/ghpvc/?username=Veolinan)
